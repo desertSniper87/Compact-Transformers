@@ -29,6 +29,12 @@ DATASETS = {
         'img_size': 32,
         'mean': [0.5071, 0.4867, 0.4408],
         'std': [0.2675, 0.2565, 0.2761]
+    },
+    'icartoonface': {
+        'num_classes': 5013,
+        'img_size': 112,
+        'mean': [0.5677, 0.5188, 0.4885],
+        'std': [0.2040, 0.2908, 0.2848]
     }
 }
 
@@ -42,7 +48,7 @@ def init_parser():
 
     parser.add_argument('--dataset',
                         type=str.lower,
-                        choices=['cifar10', 'cifar100'],
+                        choices=['cifar10', 'cifar100', 'icartoonface'],
                         default='cifar10')
 
     parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
