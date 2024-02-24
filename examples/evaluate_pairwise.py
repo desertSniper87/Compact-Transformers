@@ -123,27 +123,27 @@ def main():
                  None, # padding
                  'none', # positional_embedding
                  num_classes=5013,
-                 img_size = 112,
+                 img_size = 224,
                  patch_size = 7,
                  n_conv_layers=2,
                  bn_tf=False,
-                 pretrained_weights='/run/media/torsho/87_portable/edu/dat/iCartoonFace/compact_transformer/output/train/20240211-203458-cct_7_7x2_112-112/model_best.pth.tar')
+                 pretrained_weights='/root/face-rnd/Compact-Transformers/output/train/20240218-005913-cct_7_7x2_224-224/model_best.pth.tar')
 
-    torch.manual_seed(0)
-    torch.cuda.manual_seed_all(0)
-    torch.use_deterministic_algorithms(True)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    torch.cuda.manual_seed(999)
-    random.seed(999)
-    os.environ['CUDNN_DETERMINISTIC'] = '1'
-    os.environ['PYTHONHASHSEED'] = str(0)
+    # torch.manual_seed(0)
+    # torch.cuda.manual_seed_all(0)
+    # torch.use_deterministic_algorithms(True)
+    # torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.benchmark = False
+    # torch.cuda.manual_seed(999)
+    # random.seed(999)
+    # os.environ['CUDNN_DETERMINISTIC'] = '1'
+    # os.environ['PYTHONHASHSEED'] = str(0)
 
     normalize = [transforms.Normalize(mean=img_mean, std=img_std)]
 
-    if (not args.no_cuda) and torch.cuda.is_available():
-        torch.cuda.set_device(args.gpu_id)
-        model.cuda(args.gpu_id)
+    # if (not args.no_cuda) and torch.cuda.is_available():
+    torch.cuda.set_device(args.gpu_id)
+    model.cuda(args.gpu_id)
 
     # args.data ---> test_data for evaluation
     # The data is already resized we say
@@ -160,15 +160,15 @@ def main():
     imgpath_classids = []
 
     def get_predicted_class(img_path):
-        img_path = f'/run/media/torsho/87_portable/edu/dat/iCartoonFace/personai_icartoonface_rectest/icartoonface_rectest/{img_path}'
-        x = model(transform_(Image.open(img_path).convert('RGB')).unsqueeze(0))
+        img_path = f'/root/face-rnd/dat/personai_icartoonface_rectest/icartoonface_rectest/{img_path}'
+        x = model(transform_(Image.open(img_path).convert('RGB')).to("cuda").unsqueeze(0))
         probabilities = nn.functional.softmax(x, dim=1)
         predicted_class = torch.argmax(probabilities, dim=1)
         return predicted_class.item()
 
     correct_num, total_num = 0, 0
 
-    with open("/run/media/torsho/87_portable/edu/dat/iCartoonFace/evalution_code/rec_evalution_code/icartoonface_rectest_info.txt", 'r', encoding='utf-8') as f:
+    with open("/root/face-rnd/dat/icartoonface_rectest_info.txt", 'r', encoding='utf-8') as f:
         for line in f.readlines():
             line_info = line.strip().split()
             if len(line_info) == 6:
@@ -191,7 +191,7 @@ def main():
                     correct_num += 1
                 else:
                     print(f'not ok' , end=' ')
-                print(f'\t{idx1}\t{idx2}\t{imgpath1}\t{imgpath_classids[idx1]}\t{get_predicted_class(imgpath1)}\t{imgpath2}\t{imgpath_classids[idx2]}\t{get_predicted_class(imgpath2)}')
+                print(f'\t{idx1}\t{idx2}\t{imgpath1}\t{imgpath_classids[idx1]}\t{get_predicted_class(imgpath1)}\t{imgpath2}\t{imgpath_classids[idx2]}\t{get_predicted_class(imgpath2)}', 100.0 * correct_num / total_num)
 
     print(100.0 * correct_num / total_num)
 

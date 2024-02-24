@@ -1,6 +1,6 @@
 dataset: icartoonface
 num_classes: 5013
-img_size: 112
+img_size: 224
 mean:
     - 0.5677
     - 0.5188

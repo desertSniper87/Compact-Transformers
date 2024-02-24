@@ -114,8 +114,9 @@ def _cct(arch, pretrained, progress,
             state_dict = fc_check(model, state_dict)
             model.load_state_dict(state_dict)
         elif kwargs.get('pretrained_weights'):
-            state_dict = torch.load(kwargs['pretrained_weights'], map_location='cpu')
+            state_dict = torch.load(kwargs['pretrained_weights'], map_location='cuda')
             model.load_state_dict(state_dict['state_dict'])
+            model.to("cuda")
         else:
             raise RuntimeError(f'Variant {arch} does not yet have pretrained weights.')
     return model
