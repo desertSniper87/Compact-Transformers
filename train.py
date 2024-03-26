@@ -284,6 +284,8 @@ parser.add_argument('--torchscript', dest='torchscript', action='store_true',
 parser.add_argument('--log-wandb', action='store_true', default=False,
                     help='log training and validation metrics to wandb')
 
+use_cuda = torch.cuda.is_available()
+use_mps = torch.backends.mps.is_available()
 
 def _parse_args():
     # Do we have a config file to parse?
@@ -314,10 +316,17 @@ def main():
                             "Metrics not being logged to wandb, try `pip install wandb`")
 
     args.prefetcher = not args.no_prefetcher
-    args.distributed = False
+    # args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
-    args.device = 'cuda:0'
+    if use_cuda:
+        args.device = 'cuda:0'
+        if args.distributed:
+            args.device = f'cuda:{args.local_rank}'
+    elif use_mps:
+        args.device = 'mps'
+    else:
+        args.device = 'cpu'
     args.world_size = 1
     args.rank = 0  # global rank
     if args.distributed:
@@ -447,6 +456,7 @@ def main():
 
     # setup distributed training
     if args.distributed:
+        torch.cuda.set_device(f'cuda:{args.local_rank}')
         if has_apex and use_amp != 'native':
             # Apex DDP preferred unless native amp is activated
             if args.local_rank == 0:
