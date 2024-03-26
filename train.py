@@ -447,6 +447,7 @@ def main():
 
     # setup distributed training
     if args.distributed:
+        torch.cuda.set_device(args.local_rank)
         if has_apex and use_amp != 'native':
             # Apex DDP preferred unless native amp is activated
             if args.local_rank == 0:
