@@ -284,6 +284,8 @@ parser.add_argument('--torchscript', dest='torchscript', action='store_true',
 parser.add_argument('--log-wandb', action='store_true', default=False,
                     help='log training and validation metrics to wandb')
 
+use_cuda = torch.cuda.is_available()
+use_mps = torch.backends.mps.is_available()
 
 def _parse_args():
     # Do we have a config file to parse?
