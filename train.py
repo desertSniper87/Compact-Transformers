@@ -314,10 +314,17 @@ def main():
                             "Metrics not being logged to wandb, try `pip install wandb`")
 
     args.prefetcher = not args.no_prefetcher
-    args.distributed = False
+    # args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
-    args.device = 'cuda:0'
+    if use_cuda:
+        args.device = 'cuda:0'
+        if args.distributed:
+            args.device = f'cuda:{args.local_rank}'
+    elif use_mps:
+        args.device = 'mps'
+    else:
+        args.device = 'cpu'
     args.world_size = 1
     args.rank = 0  # global rank
     if args.distributed:
